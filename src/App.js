@@ -9,7 +9,8 @@ class App extends Component {
     players: [],
     balance: '',
     value: '',
-    message: ''
+    enterMessage: '',
+    winnerMessage: ''
   };
 
   componentDidMount() {
@@ -27,16 +28,30 @@ class App extends Component {
     event.preventDefault();
     const accounts = await web3.eth.getAccounts();
 
-    this.setState({ message: 'Waiting on transaction...'});
+    this.setState({ enterMessage: 'Waiting on transaction...'});
 
     await lottery.methods.enter().send({
       from: accounts[0],
       value: web3.utils.toWei(this.state.value, 'ether')
     });
 
-    this.setState({ message: 'You have been entered!'});
+    this.setState({ enterMessage: 'You have been entered!'});
     this.refresh();
   };
+
+  selectWinner = async (event) => {
+    event.preventDefault();
+    const accounts = await web3.eth.getAccounts();
+
+    this.setState({ winnerMessage: 'Selecting Winner...'});
+
+    await lottery.methods.pickWinner().send({
+      from: accounts[0]
+    });
+
+    this.setState({ winnerMessage: 'If you are the winner you should see the ether in your account!'});
+    this.refresh();
+  }
 
   render() {
     return (
@@ -54,9 +69,12 @@ class App extends Component {
           />
           <button>Enter</button>
         </form>
+        <h4>{this.state.enterMessage}</h4>
         <p />
         <hr />
-        <h4>{this.state.message}</h4>
+        <h3>Ready to Pick a Winner?</h3>
+        <button onClick={this.selectWinner}>Pick the winner!</button>
+        <h4>{this.state.winnerMessage}</h4>
       </div>
     );
   }
